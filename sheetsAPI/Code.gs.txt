@@ -1,0 +1,38 @@
+function doPost(e){
+  var ss = SpreadsheetApp.openById('');
+  var sheet = ss.getSheetByName('posts');
+  var lastRow = sheet.getLastRow();
+  var id = lastRow + (new Date().getTime()).toString(36);
+  var holder = JSON.parse(e.parameter.data);
+  sheet.appendRow([id + 1, cleaner(holder[0]), cleaner(holder[1])]);
+  Logger.log(holder);
+  return ContentService.createTextOutput(JSON.stringify({
+    'status': 'success'
+    , 'name': holder[0]
+    , 'message': holder[1]
+    , 'id' : id
+  }))
+}
+
+function cleaner(val) {
+  return val.replace(/[^A-Za-z0-9]/g, "");
+}
+
+function doGet(e){
+  var data = {
+    status : 'success',
+    posts : myData() 
+  };
+  var output = JSON.stringify(data);
+  return ContentService.createTextOutput(output).setMimeType(ContentService.MimeType.JSON);
+}
+ 
+function myData() {
+  var ss = SpreadsheetApp.openById('');
+  var sheet = ss.getSheetByName('posts');
+  var rows = sheet.getDataRange().getValues();
+  Logger.log(rows);
+  var posts = rows.slice(1);
+  Logger.log(posts);
+  return posts;
+}
